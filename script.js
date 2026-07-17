@@ -1,28 +1,31 @@
-// Mobile menu
 const menuToggle = document.getElementById("menuToggle");
 const navMenu = document.getElementById("navMenu");
 
-menuToggle.addEventListener("click", () => {
-  navMenu.classList.toggle("show");
-});
+if (menuToggle && navMenu) {
+  menuToggle.addEventListener("click", () => {
+    navMenu.classList.toggle("show");
+  });
+}
 
-// Close menu after clicking a link
 document.querySelectorAll(".nav a").forEach(link => {
   link.addEventListener("click", () => {
     navMenu.classList.remove("show");
   });
 });
 
-// Smooth scroll for internal links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute("href"));
-    if (target) target.scrollIntoView({ behavior: "smooth" });
-  });
-});
+// Blog admin password protection
+const ADMIN_PASSWORD = "cba2026";
 
-// Demo blog posts
+// Blog page
+const postsGrid = document.getElementById("postsGrid");
+const postFormWrap = document.getElementById("postFormWrap");
+const openPostFormBtn = document.getElementById("openPostFormBtn");
+const closePostFormBtn = document.getElementById("closePostFormBtn");
+const postForm = document.getElementById("postForm");
+const unlockBtn = document.getElementById("unlockBtn");
+const adminPassword = document.getElementById("adminPassword");
+const adminStatus = document.getElementById("adminStatus");
+
 const defaultPosts = [
   {
     title: "Sunday Worship Highlights",
@@ -44,21 +47,37 @@ const defaultPosts = [
   }
 ];
 
-// Load saved posts or default posts
-let posts = JSON.parse(localStorage.getItem("churchPosts")) || defaultPosts;
+function isBlogPage() {
+  return !!postsGrid;
+}
 
-const postsGrid = document.getElementById("postsGrid");
-const postFormWrap = document.getElementById("postFormWrap");
-const openPostFormBtn = document.getElementById("openPostFormBtn");
-const closePostFormBtn = document.getElementById("closePostFormBtn");
-const postForm = document.getElementById("postForm");
-const postTitle = document.getElementById("postTitle");
-const postCategory = document.getElementById("postCategory");
-const postContent = document.getElementById("postContent");
-const postImage = document.getElementById("postImage");
+function isGalleryPage() {
+  return !!document.getElementById("galleryGrid");
+}
 
-// Render posts
-function renderPosts() {
+function isAdminUnlocked() {
+  return localStorage.getItem("cba_admin_unlocked") === "true";
+}
+
+function setAdminState(unlocked) {
+  localStorage.setItem("cba_admin_unlocked", unlocked ? "true" : "false");
+  if (postFormWrap && openPostFormBtn) {
+    openPostFormBtn.style.display = unlocked ? "inline-flex" : "none";
+  }
+  if (galleryFormWrap && openGalleryFormBtn) {
+    openGalleryFormBtn.style.display = unlocked ? "inline-flex" : "none";
+  }
+  if (adminStatus) {
+    adminStatus.textContent = unlocked ? "Admin access granted." : "Admin access required to add posts.";
+  }
+  if (galleryAdminStatus) {
+    galleryAdminStatus.textContent = unlocked ? "Admin access granted." : "Admin access required to upload gallery photos.";
+  }
+}
+
+function renderPosts(posts) {
+  if (!postsGrid) return;
+
   postsGrid.innerHTML = posts.map((post, index) => `
     <article class="post-card">
       <img src="${post.image || 'IMG-20260717-WA0004.jpg'}" alt="${post.title}">
@@ -68,46 +87,181 @@ function renderPosts() {
       </div>
       <h3>${post.title}</h3>
       <p>${post.content}</p>
-      <button class="btn btn-secondary remove-btn" data-index="${index}" style="margin-top:14px;">Delete</button>
+      ${isAdminUnlocked() ? `<button class="btn btn-secondary remove-btn" data-index="${index}" style="margin-top:14px;">Delete</button>` : ""}
     </article>
   `).join("");
 
-  document.querySelectorAll(".remove-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const index = btn.dataset.index;
-      posts.splice(index, 1);
-      localStorage.setItem("churchPosts", JSON.stringify(posts));
-      renderPosts();
+  if (isAdminUnlocked()) {
+    document.querySelectorAll(".remove-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const posts = JSON.parse(localStorage.getItem("churchPosts")) || defaultPosts;
+        const index = Number(btn.dataset.index);
+        posts.splice(index, 1);
+        localStorage.setItem("churchPosts", JSON.stringify(posts));
+        renderPosts(posts);
+      });
     });
-  });
+  }
 }
 
-// Toggle post form
-openPostFormBtn.addEventListener("click", () => {
-  postFormWrap.classList.remove("hidden");
-});
+// Gallery page
+const galleryGrid = document.getElementById("galleryGrid");
+const galleryFormWrap = document.getElementById("galleryFormWrap");
+const openGalleryFormBtn = document.getElementById("openGalleryFormBtn");
+const closeGalleryFormBtn = document.getElementById("closeGalleryFormBtn");
+const galleryForm = document.getElementById("galleryForm");
+const unlockGalleryBtn = document.getElementById("unlockGalleryBtn");
+const galleryAdminPassword = document.getElementById("galleryAdminPassword");
+const galleryAdminStatus = document.getElementById("galleryAdminStatus");
 
-closePostFormBtn.addEventListener("click", () => {
-  postFormWrap.classList.add("hidden");
-});
+const defaultGallery = [
+  {
+    image: "IMG-20260717-WA0004.jpg",
+    title: "Sunday Service",
+    description: "A blessed time of worship and the Word."
+  },
+  {
+    image: "IMG-20260717-WA0004.jpg",
+    title: "Church Fellowship",
+    description: "Joyful moments with the church family."
+  },
+  {
+    image: "IMG-20260717-WA0004.jpg",
+    title: "Prayer Meeting",
+    description: "Intercession and spiritual refreshment."
+  }
+];
 
-// Add new post
-postForm.addEventListener("submit", (e) => {
-  e.preventDefault();
+function renderGallery(items) {
+  if (!galleryGrid) return;
 
-  const newPost = {
-    title: postTitle.value.trim(),
-    category: postCategory.value.trim(),
-    content: postContent.value.trim(),
-    image: postImage.value.trim() || "IMG-20260717-WA0004.jpg"
-  };
+  galleryGrid.innerHTML = items.map((item, index) => `
+    <article class="gallery-card">
+      <img src="${item.image || 'IMG-20260717-WA0004.jpg'}" alt="${item.title}">
+      <h3>${item.title}</h3>
+      <p>${item.description || ""}</p>
+      ${isAdminUnlocked() ? `<button class="btn btn-secondary delete-gallery-btn" data-index="${index}" style="margin-top:14px;">Delete</button>` : ""}
+    </article>
+  `).join("");
 
-  posts.unshift(newPost);
-  localStorage.setItem("churchPosts", JSON.stringify(posts));
-  renderPosts();
-  postForm.reset();
-  postFormWrap.classList.add("hidden");
-});
+  if (isAdminUnlocked()) {
+    document.querySelectorAll(".delete-gallery-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const items = JSON.parse(localStorage.getItem("churchGallery")) || defaultGallery;
+        const index = Number(btn.dataset.index);
+        items.splice(index, 1);
+        localStorage.setItem("churchGallery", JSON.stringify(items));
+        renderGallery(items);
+      });
+    });
+  }
+}
 
-// Initial render
-renderPosts();
+if (isBlogPage() || isGalleryPage()) {
+  setAdminState(isAdminUnlocked());
+}
+
+if (isBlogPage()) {
+  const savedPosts = JSON.parse(localStorage.getItem("churchPosts")) || defaultPosts;
+  renderPosts(savedPosts);
+
+  if (unlockBtn && adminPassword) {
+    unlockBtn.addEventListener("click", () => {
+      if (adminPassword.value === ADMIN_PASSWORD) {
+        setAdminState(true);
+        renderPosts(JSON.parse(localStorage.getItem("churchPosts")) || defaultPosts);
+        if (galleryGrid) renderGallery(JSON.parse(localStorage.getItem("churchGallery")) || defaultGallery);
+      } else {
+        if (adminStatus) adminStatus.textContent = "Wrong password.";
+      }
+      adminPassword.value = "";
+    });
+  }
+
+  if (openPostFormBtn && postFormWrap) {
+    openPostFormBtn.addEventListener("click", () => {
+      if (isAdminUnlocked()) postFormWrap.classList.remove("hidden");
+    });
+  }
+
+  if (closePostFormBtn && postFormWrap) {
+    closePostFormBtn.addEventListener("click", () => postFormWrap.classList.add("hidden"));
+  }
+
+  if (postForm) {
+    postForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!isAdminUnlocked()) return;
+
+      const postTitle = document.getElementById("postTitle");
+      const postCategory = document.getElementById("postCategory");
+      const postContent = document.getElementById("postContent");
+      const postImage = document.getElementById("postImage");
+
+      const posts = JSON.parse(localStorage.getItem("churchPosts")) || defaultPosts;
+
+      posts.unshift({
+        title: postTitle.value.trim(),
+        category: postCategory.value.trim(),
+        content: postContent.value.trim(),
+        image: postImage.value.trim() || "IMG-20260717-WA0004.jpg"
+      });
+
+      localStorage.setItem("churchPosts", JSON.stringify(posts));
+      renderPosts(posts);
+      postForm.reset();
+      postFormWrap.classList.add("hidden");
+    });
+  }
+}
+
+if (isGalleryPage()) {
+  const savedGallery = JSON.parse(localStorage.getItem("churchGallery")) || defaultGallery;
+  renderGallery(savedGallery);
+
+  if (unlockGalleryBtn && galleryAdminPassword) {
+    unlockGalleryBtn.addEventListener("click", () => {
+      if (galleryAdminPassword.value === ADMIN_PASSWORD) {
+        setAdminState(true);
+        renderGallery(JSON.parse(localStorage.getItem("churchGallery")) || defaultGallery);
+      } else {
+        if (galleryAdminStatus) galleryAdminStatus.textContent = "Wrong password.";
+      }
+      galleryAdminPassword.value = "";
+    });
+  }
+
+  if (openGalleryFormBtn && galleryFormWrap) {
+    openGalleryFormBtn.addEventListener("click", () => {
+      if (isAdminUnlocked()) galleryFormWrap.classList.remove("hidden");
+    });
+  }
+
+  if (closeGalleryFormBtn && galleryFormWrap) {
+    closeGalleryFormBtn.addEventListener("click", () => galleryFormWrap.classList.add("hidden"));
+  }
+
+  if (galleryForm) {
+    galleryForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!isAdminUnlocked()) return;
+
+      const galleryImage = document.getElementById("galleryImage");
+      const galleryTitle = document.getElementById("galleryTitle");
+      const galleryDescription = document.getElementById("galleryDescription");
+
+      const items = JSON.parse(localStorage.getItem("churchGallery")) || defaultGallery;
+
+      items.unshift({
+        image: galleryImage.value.trim() || "IMG-20260717-WA0004.jpg",
+        title: galleryTitle.value.trim(),
+        description: galleryDescription.value.trim()
+      });
+
+      localStorage.setItem("churchGallery", JSON.stringify(items));
+      renderGallery(items);
+      galleryForm.reset();
+      galleryFormWrap.classList.add("hidden");
+    });
+  }
+}
