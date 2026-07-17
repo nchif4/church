@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog | Christ's Bride Assembly</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <p>Welcome to Christ's Bride Assembly / World Rescue Ministries</p>
+      <div class="topbar-links">
+        <a href="mailto:church@email.com">church@email.com</a>
+        <a href="tel:+237600000000">+237 600 000 000</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="container nav-container">
+      <a href="index.html" class="logo-wrap">
+        <img src="IMG-20260717-WA0004.jpg" alt="Church Logo" class="logo-img">
+        <span class="logo-text">CBA / WRM</span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+      <nav class="nav" id="navMenu">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="services.html">Services</a>
+        <a href="ministries.html">Ministries</a>
+        <a href="blog.html">Blog</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="section alt-bg">
+    <div class="container">
+      <div class="section-heading">
+        <p class="section-label">Blog</p>
+        <h2>Church News and Posts</h2>
+      </div>
+
+      <div class="post-form" style="margin-bottom:20px;">
+        <h3>Admin Access</h3>
+        <input type="password" id="adminPassword" placeholder="Enter admin password">
+        <button class="btn btn-primary" id="unlockBtn">Unlock Admin</button>
+        <p id="adminStatus" style="color:#c7d2fe;">Admin access required to add posts.</p>
+      </div>
+
+      <div class="post-toolbar">
+        <button class="btn btn-primary hidden" id="openPostFormBtn">Add New Post</button>
+      </div>
+
+      <div class="post-form-wrap hidden" id="postFormWrap">
+        <form id="postForm" class="post-form">
+          <h3>Add Church Post</h3>
+          <input type="text" id="postTitle" placeholder="Post title" required>
+          <input type="text" id="postCategory" placeholder="Category" required>
+          <textarea id="postContent" placeholder="Write the post..." required></textarea>
+          <input type="text" id="postImage" placeholder="Image file or URL">
+          <button type="submit" class="btn btn-primary">Publish Post</button>
+          <button type="button" class="btn btn-secondary" id="closePostFormBtn">Cancel</button>
+        </form>
+      </div>
+
+      <div class="posts-grid" id="postsGrid"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p>© 2026 Christ's Bride Assembly / World Rescue Ministries. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
