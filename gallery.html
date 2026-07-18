@@ -89,10 +89,34 @@
         <div class="post-form-wrap hidden" id="galleryFormWrap">
           <form id="galleryForm" class="post-form">
             <h3>Upload Gallery Photo</h3>
-            <input type="text" id="galleryImage" placeholder="Image file name or URL" required>
+
+            <div class="file-upload-area">
+
+    <label for="galleryImage" class="upload-btn">
+        📷 Choose Photo
+    </label>
+
+    <input
+        type="file"
+        id="galleryImage"
+        accept="image/*"
+        hidden
+        required>
+
+    <span id="selectedFileName">
+        No image selected
+    </span>
+
+</div>
+
+<div class="preview-box">
+    <img id="galleryPreview">
+</div>
+            
+            
             <input type="text" id="galleryTitle" placeholder="Photo title" required>
             <textarea id="galleryDescription" placeholder="Photo description"></textarea>
-            <button type="submit" class="btn btn-primary">Add Photo</button>
+            <button type="submit" class="btn btn-primary">upload </button>
             <button type="button" class="btn btn-secondary" id="closeGalleryFormBtn">Cancel</button>
           </form>
         </div>
