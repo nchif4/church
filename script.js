@@ -265,3 +265,108 @@ if (isGalleryPage()) {
     });
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===========================================
+   GALLERY IMAGE UPLOAD
+=========================================== */
+
+const imageInput=document.getElementById("galleryImage");
+
+const preview=document.getElementById("galleryPreview");
+
+const fileName=document.getElementById("selectedFileName");
+
+const form=document.getElementById("galleryForm");
+
+const grid=document.getElementById("galleryGrid");
+
+if(imageInput){
+
+imageInput.addEventListener("change",function(){
+
+const file=this.files[0];
+
+if(!file)return;
+
+fileName.textContent=file.name;
+
+const reader=new FileReader();
+
+reader.onload=function(e){
+
+preview.src=e.target.result;
+
+preview.style.display="block";
+
+}
+
+reader.readAsDataURL(file);
+
+});
+
+}
+
+if(form){
+
+form.addEventListener("submit",function(e){
+
+e.preventDefault();
+
+const file=imageInput.files[0];
+
+if(!file){
+
+alert("Please choose an image.");
+
+return;
+
+}
+
+const reader=new FileReader();
+
+reader.onload=function(event){
+
+const title=document.getElementById("galleryTitle").value;
+
+const description=document.getElementById("galleryDescription").value;
+
+const card=document.createElement("div");
+
+card.className="gallery-card";
+
+card.innerHTML=`
+
+<img src="${event.target.result}">
+
+<h3>${title}</h3>
+
+<p>${description}</p>
+
+`;
+
+grid.prepend(card);
+
+form.reset();
+
+preview.style.display="none";
+
+fileName.textContent="No image selected";
+
+}
+
+reader.readAsDataURL(file);
+
+});
+
+}
